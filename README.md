@@ -1,5 +1,5 @@
 # 🐟 Ifeka OD Fish Health Vision Monitor
-# Aquaculture Fish Health Vision Monitor: Two-Stage Cascaded Edge AI Pipeline
+## Aquaculture Fish Health Vision Monitor: Two-Stage Cascaded Edge AI Pipeline
 
 ## Overview
 A lightweight, edge-optimized computer vision pipeline designed for early skin lesion and fungal patch detection in aquaculture (specifically targeting African catfish). Built with a resource-conscious architecture, the system balances low-spec local hardware constraints with advanced Out-of-Distribution (OOD) filtering and local CPU inference.
