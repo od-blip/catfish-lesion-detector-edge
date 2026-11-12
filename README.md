@@ -1,4 +1,4 @@
-# 🐟 [Ifeka OD Fish Health Vision Monitor]
+# 🐟 Ifeka OD Fish Health Vision Monitor
 ## Aquaculture Fish Health Vision Monitor: Two-Stage Cascaded Edge AI Pipeline
 
 ## Overview
