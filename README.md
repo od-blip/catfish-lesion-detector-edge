@@ -14,10 +14,10 @@ This project implements a **resource-conscious, Two-Stage Cascaded Edge AI Pipel
 ### Demo
 [Watch Video on Google Drive](https://shorturl.at/CLTr1)
 
-### Result for catfish with not-noticeable lesion
+#### Result for catfish with not-noticeable lesion
 <img width="1024" height="891" alt="e49d4a20-5703-4ddc-9b8e-23d66d316da6" src="https://github.com/user-attachments/assets/f819e677-9faa-4639-a93f-62b680fe096f" />
 
-### Result for healthy catfish
+#### Result for healthy catfish
 <img width="1024" height="1017" alt="dc422522-761b-48f7-bda7-de9efa6ec686" src="https://github.com/user-attachments/assets/6ac6e96e-233c-4db4-a9a7-c1203516feae" />
 
 
