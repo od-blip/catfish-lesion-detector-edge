@@ -1,0 +1,181 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "gpuType": "T4",
+      "authorship_tag": "ABX9TyNd+oHdQeR6h6Py1sFteOto",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "GPU"
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/od-blip/catfish-lesion-detector-edge/blob/main/od-blip/catfish-lesion-detector-edge\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "ypVfJ6dqagbH",
+        "outputId": "553493a1-e1fb-40d4-fa7a-363192015ae5"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Turbidity augmentation function loaded successfully!\n"
+          ]
+        }
+      ],
+      "source": [
+        "import cv2\n",
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "\n",
+        "def apply_water_turbidity(image, opacity=0.35):\n",
+        "    \"\"\"\n",
+        "    Simulates turbid pond water by adding a Gaussian noise layer\n",
+        "    and a brownish tint overlay to test vision model robustness.\n",
+        "    \"\"\"\n",
+        "    overlay = image.copy()\n",
+        "    # Adding a brownish-greenish tint typical of aquaculture ponds\n",
+        "    cv2.rectangle(overlay, (0, 0), (image.shape[1], image.shape[0]), (30, 60, 80), -1)\n",
+        "    turbid_img = cv2.addWeighted(overlay, opacity, image, 1 - opacity, 0)\n",
+        "\n",
+        "    # Add synthetic suspended particles (Gaussian noise)\n",
+        "    noise = np.random.normal(0, 15, image.shape).astype(np.uint8)\n",
+        "    turbid_img = cv2.add(turbid_img, noise)\n",
+        "    return turbid_img\n",
+        "\n",
+        "# Test it with a dummy image to make sure it works\n",
+        "dummy_image = np.zeros((416, 416, 3), dtype=np.uint8) + 200 # white square\n",
+        "augmented = apply_water_turbidity(dummy_image)\n",
+        "print(\"Turbidity augmentation function loaded successfully!\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# 1. Installing the Ultralytics YOLOv8 library\n",
+        "!pip install ultralytics -q\n",
+        "\n",
+        "from ultralytics import YOLO\n",
+        "import torch\n",
+        "\n",
+        "print(\"GPU Available:\", torch.cuda.is_available())\n",
+        "\n",
+        "# 2. Load the lightweight YOLOv8-Nano model (~3.2M parameters)\n",
+        "model = YOLO('yolov8n.pt')\n",
+        "\n",
+        "# 3. Quick training run (Using a sample dataset or a placeholder yaml)\n",
+        "# Note: For a real run, you would point 'data' to your custom Roboflow YAML file.\n",
+        "# For this portfolio proof-of-concept, we'll run a quick demo training phase or export directly.\n",
+        "print(\"YOLOv8-Nano loaded successfully!\")\n",
+        "\n",
+        "# 4. Export the model to ONNX format (Optimized for CPU Inference on your local laptop)\n",
+        "# dynamic=True allows variable image sizes during inference\n",
+        "success = model.export(format='onnx', dynamic=True)\n",
+        "print(f\"Model exported successfully to ONNX: {success}\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "or9MPbRYc21r",
+        "outputId": "5353b162-86dc-44c9-a965-9c3b66888f8b"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Creating new Ultralytics Settings v0.0.8 file ✅ \n",
+            "View Ultralytics Settings with 'yolo settings' or at '/root/.config/Ultralytics/settings.json'\n",
+            "Update Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. For help see https://docs.ultralytics.com/usage/settings\n",
+            "GPU Available: True\n",
+            "\u001b[KDownloading https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt to 'yolov8n.pt': 100% ━━━━━━━━━━━━ 6.2MB 245.9MB/s 0.0s\n",
+            "YOLOv8-Nano loaded successfully!\n",
+            "Ultralytics 8.4.210 🚀 Python-3.13.16 torch-2.14.1+cu130 CPU (Intel Xeon CPU @ 2.00GHz)\n",
+            "💡 ProTip: Export to OpenVINO format for best performance on Intel hardware. Learn more at https://docs.ultralytics.com/integrations/openvino\n",
+            "YOLOv8n summary (fused): 72 layers, 3,151,904 parameters, 0 gradients, 8.7 GFLOPs\n",
+            "\n",
+            "\u001b[34m\u001b[1mPyTorch:\u001b[0m starting from 'yolov8n.pt' with input shape (1, 3, 640, 640) BCHW and output shape(s) (1, 84, 8400) (6.2 MB)\n",
+            "\u001b[31m\u001b[1mrequirements:\u001b[0m Ultralytics requirements ['onnx>=1.12.0,<2.0.0', 'onnxruntime', 'onnxslim>=0.1.82'] not found, attempting AutoUpdate...\n",
+            "Using Python 3.13.16 environment at: /usr\n",
+            "Resolved 12 packages in 251ms\n",
+            "Prepared 4 packages in 548ms\n",
+            "Installed 4 packages in 34ms\n",
+            " + colorama==0.4.6\n",
+            " + onnx==1.23.2\n",
+            " + onnxruntime==1.31.1\n",
+            " + onnxslim==0.1.99\n",
+            "\n",
+            "\u001b[31m\u001b[1mrequirements:\u001b[0m AutoUpdate success ✅ 1.2s\n",
+            "WARNING ⚠️ \u001b[31m\u001b[1mrequirements:\u001b[0m \u001b[1mRestart runtime or rerun command for updates to take effect\u001b[0m\n",
+            "\n",
+            "\n",
+            "\u001b[34m\u001b[1mONNX:\u001b[0m starting export with onnx 1.23.2 opset 18...\n",
+            "\u001b[34m\u001b[1mONNX:\u001b[0m slimming with onnxslim 0.1.99...\n",
+            "\u001b[34m\u001b[1mONNX:\u001b[0m export success ✅ 6.4s, saved as 'yolov8n.onnx' (12.4 MB)\n",
+            "\n",
+            "Export complete (6.9s)\n",
+            "Results saved to \u001b[1m/content/yolov8n.onnx\u001b[0m\n",
+            "Predict:         yolo predict task=detect model=yolov8n.onnx imgsz=640 \n",
+            "Validate:        yolo val task=detect model=yolov8n.onnx imgsz=640 data=coco.yaml \n",
+            "Visualize:       https://netron.app\n",
+            "Model exported successfully to ONNX: yolov8n.onnx\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# 1. Install the Ultralytics YOLOv8 library\n",
+        "!pip install ultralytics -q\n",
+        "\n",
+        "from ultralytics import YOLO\n",
+        "import torch\n",
+        "\n",
+        "print(\"GPU Available:\", torch.cuda.is_available())\n",
+        "\n",
+        "# 2. Load the lightweight YOLOv8-Nano model (~3.2M parameters)\n",
+        "model = YOLO('yolov8n.pt')\n",
+        "\n",
+        "# 3. Quick training run (Using a sample dataset or a placeholder yaml)\n",
+        "# Note: For a real run, you would point 'data' to your custom Roboflow YAML file.\n",
+        "# For this portfolio proof-of-concept, we'll run a quick demo training phase or export directly.\n",
+        "print(\"YOLOv8-Nano loaded successfully!\")\n",
+        "\n",
+        "# 4. Export the model to ONNX format (Optimized for CPU Inference on your local laptop)\n",
+        "# dynamic=True allows variable image sizes during inference\n",
+        "success = model.export(format='onnx', dynamic=True)\n",
+        "print(f\"Model exported successfully to ONNX: {success}\")"
+      ],
+      "metadata": {
+        "id": "8i1u_koDcX9-"
+      }
+    }
+  ]
+}
