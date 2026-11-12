@@ -1,29 +1,54 @@
-# 🐟 Ifeka OD Fish Health Vision Monitor
-## Aquaculture Fish Health Vision Monitor: Two-Stage Cascaded Edge AI Pipeline
+# 🐟 Aquaculture Fish Health Vision Monitor: Two-Stage Cascaded Edge AI Pipeline
 
-## Overview
-A lightweight, edge-optimized computer vision pipeline designed for early skin lesion and fungal patch detection in aquaculture (specifically targeting African catfish). Built with a resource-conscious architecture, the system balances low-spec local hardware constraints with advanced Out-of-Distribution (OOD) filtering and local CPU inference.
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![ONNX Runtime](https://img.shields.io/badge/Inference-ONNX%20Runtime-green.svg)](https://onnxruntime.ai/)
+[![OpenCV](https://img.shields.io/badge/Vision-OpenCV-red.svg)](https://opencv.org/)
+[![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io/)
 
-### Result for Healthy Catfish
-<img width="1567" height="1557" alt="image" src="https://github.com/user-attachments/assets/9ae524af-0ab8-4b89-880d-1b66a428ed89" />
+## 📌 Problem Statement & Motivation
+Smallholder aquaculture farms in West Africa frequently suffer catastrophic stock losses due to delayed detection of dermal infections (ulcerative erythema, fungal patches) and acute environmental stress. Existing computer vision solutions typically rely on cloud-hosted, GPU-heavy deep learning models that are financially and infrastructurally unviable in rural pond environments with intermittent connectivity.
+
+This project implements a **resource-conscious, Two-Stage Cascaded Edge AI Pipeline** capable of running real-time visual diagnostics locally on low-spec CPU hardware (Intel Core i5, 8GB RAM, no dedicated GPU).
+
+---
+### Result for catfish with not-noticeable lesion
+<img width="1024" height="891" alt="e49d4a20-5703-4ddc-9b8e-23d66d316da6" src="https://github.com/user-attachments/assets/f819e677-9faa-4639-a93f-62b680fe096f" />
+
+### Result for healthy catfish
+<img width="1024" height="1017" alt="dc422522-761b-48f7-bda7-de9efa6ec686" src="https://github.com/user-attachments/assets/6ac6e96e-233c-4db4-a9a7-c1203516feae" />
 
 
-### Result for Catfish with Lesion
-<img width="1615" height="1546" alt="image" src="https://github.com/user-attachments/assets/7d6d92ab-179e-4ad2-931a-7af6194570f7" />
+## 🛠️ System Architecture & Engineering Strategy
 
+To minimize false positives on noisy field inputs while maintaining sub-300ms CPU inference latency, the pipeline decouples domain validation from lesion localization:
+
+1. **Stage 1 — Out-of-Distribution (OOD) ONNX Gatekeeper (`YOLOv8n.onnx`):**
+   * Executes a lightweight, FP16-quantized YOLOv8-Nano model via `ONNX Runtime`.
+   * Screens incoming frames to filter out non-aquatic/out-of-distribution scenes (e.g., human portraits, vehicles, indoor backgrounds) before diagnostic processing.
+2. **Stage 2 — Localized Dermal Lesion Delineation (`OpenCV`):**
+   * Applies HSV color-space transformations and morphological segmentation to isolate hyperemic/ulcerative lesions and fungal anomalies against the dark dorsal pigmentation of African catfish (*Clarias gariepinus*).
+   * Outputs localized bounding boxes, peak confidence scores, and actionable biosecurity alerts.
 
 ---
 
-## 🛠️ Architecture & Strategy
-The system utilizes a **Two-Stage Cascaded Pipeline** to eliminate false positives and ensure real-time local performance on restricted hardware:
-1. **Stage 1 (ONNX Gatekeeper):** Uses a COCO-pretrained YOLOv8n model via ONNX Runtime to inspect pixel distributions and screen out-of-distribution (OOD) inputs (such as portraits, vehicles, or indoor scenes) before running diagnostics.
-2. **Stage 2 (Localized Delineation):** Employs OpenCV HSV color-space and morphological segmentation to isolate ulcerative erythema (reddish open sores) and fungal patches on dark catfish skin, drawing bounding boxes with confidence scores.
+## 📊 Performance Benchmarks (Local CPU Execution)
+
+Evaluated locally on an **Intel Core i5 (10th Gen) CPU @ 1.60GHz, 8GB RAM (No Discrete GPU)**:
+
+| Test Scenario | Input Resolution | Stage 1 + Stage 2 Latency | Diagnostic Output |
+| :--- | :--- | :--- | :--- |
+| **Diseased Specimen (Ex-situ)** | `225 × 225 px` | **179 ms** (~5.6 FPS) | 2 Dermal Lesions Localized (Peak Conf: 69.6%) |
+| **Healthy Specimens (In-situ Pond)** | `1250 × 833 px` | **288 ms** (~3.5 FPS) | Healthy Specimen Verified (0 False Positives) |
 
 ---
 
-## 💻 Hardware & Deployment Strategy
-* **Cloud Training Tier (Google Colab T4 GPU):** Heavy model training, fine-tuning, and data augmentation occur on free-tier cloud accelerators.
-* **Edge Inference (Local Intel i5, 8GB RAM Laptop):** Model execution runs locally via ONNX Runtime (`yolov8n.onnx`) and OpenCV, completely eliminating the need for heavy local GPUs or costly cloud web hosting.
+## 🔬 Current Limitations & Future MSc Research Direction
+While heuristic HSV color-space segmentation provides an effective, zero-shot baseline for ex-situ inspection, **color thresholding degrades under high water turbidity, fluctuating natural illumination, and algal blooms**. 
+
+**Proposed Graduate Research Extension:**
+1. Curating a domain-specific, annotated dataset of *Clarias gariepinus* under controlled turbidity gradients.
+2. Replacing Stage 2's heuristic segmentation with a fine-tuned, lightweight neural architecture (**YOLOv8-Nano / MobileNetV3-SSD**) trained with synthetic turbidity augmentations.
+3. Multimodal fusion combining visual lesion scores with time-series water-quality telemetry (dissolved oxygen, pH, unionized ammonia).
 
 ---
 
@@ -31,9 +56,9 @@ The system utilizes a **Two-Stage Cascaded Pipeline** to eliminate false positiv
 ```text
 catfish-lesion-detector-edge/
 ├── notebooks/
-│   └── Catfish_Lesion_Detection_YOLOv8.ipynb # Trained on Colab T4 GPU
+│   └── Catfish_Lesion_Detection_YOLOv8.ipynb  # Colab T4 GPU export & quantization pipeline
 ├── models/
-│   └── yolov8n.onnx                          # Optimized FP16 ONNX model for edge CPU
+│   └── yolov8n.onnx                           # Quantized ONNX model for local CPU inference
 ├── app/
-│   └── app.py                                # Lightweight Streamlit Web Dashboard (Two-Stage Pipeline)
-└── README.md                                 # Project documentation & benchmarks
+│   └── app.py                                 # Streamlit diagnostic dashboard & cascaded pipeline
+└── README.md                                  # Architecture, benchmarks & research roadmap
