@@ -10,7 +10,7 @@ Smallholder aquaculture farms in West Africa frequently suffer catastrophic stoc
 
 This project implements a **resource-conscious, Two-Stage Cascaded Edge AI Pipeline** capable of running real-time visual diagnostics locally on low-spec CPU hardware (Intel Core i5, 8GB RAM, no dedicated GPU).
 
-#### Demo [Click to watch](https://shorturl.at/CLTr1)
+#### Demo [Click to watch](https://shorturl.at/CLTr1)👈
 ___
 
 #### Result for catfish with not-noticeable lesion
