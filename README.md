@@ -5,7 +5,7 @@
 [![OpenCV](https://img.shields.io/badge/Vision-OpenCV-red.svg)](https://opencv.org/)
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io/)
 
-## 📌 Problem Statement & Motivation
+## Problem Statement & Motivation
 Smallholder aquaculture farms in West Africa frequently suffer catastrophic stock losses due to delayed detection of dermal infections (ulcerative erythema, fungal patches) and acute environmental stress. Existing computer vision solutions typically rely on cloud-hosted, GPU-heavy deep learning models that are financially and infrastructurally unviable in rural pond environments with intermittent connectivity.
 
 This project implements a **resource-conscious, Two-Stage Cascaded Edge AI Pipeline** capable of running real-time visual diagnostics locally on low-spec CPU hardware (Intel Core i5, 8GB RAM, no dedicated GPU).
