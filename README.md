@@ -1,4 +1,4 @@
-# 🐟 Aquaculture Fish Health Vision Monitor: Two-Stage Cascaded Edge AI Pipeline
+# Aquaculture Fish Health Vision Monitor: Two-Stage Cascaded Edge AI Pipeline
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![ONNX Runtime](https://img.shields.io/badge/Inference-ONNX%20Runtime-green.svg)](https://onnxruntime.ai/)
@@ -11,8 +11,7 @@ Smallholder aquaculture farms in West Africa frequently suffer catastrophic stoc
 This project implements a **resource-conscious, Two-Stage Cascaded Edge AI Pipeline** capable of running real-time visual diagnostics locally on low-spec CPU hardware (Intel Core i5, 8GB RAM, no dedicated GPU).
 
 ---
-### Demo
-[Watch Video on Google Drive](https://shorturl.at/CLTr1)
+### Demo [Click to watch](https://shorturl.at/CLTr1)
 
 #### Result for catfish with not-noticeable lesion
 <img width="1024" height="891" alt="e49d4a20-5703-4ddc-9b8e-23d66d316da6" src="https://github.com/user-attachments/assets/f819e677-9faa-4639-a93f-62b680fe096f" />
